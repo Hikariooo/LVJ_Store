@@ -2,14 +2,14 @@ package gui;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import model.User;
+import managers.CartManager;
 
 public class Main extends Application {
 
     private Stage primaryStage;
-
-    private String currentUserDisplayName = "Guest";
-    private String currentUserRole = "Buyer"; // or "Seller"
-
+    private User currentUser;   // currently logged-in user
+    private CartManager currentUserCart; 
     public static final double WIDTH = 1280;
     public static final double HEIGHT = 720;
 
@@ -30,46 +30,38 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    /* ========= Navigation methods ========= */
-
-    public void showLoadingScreen() {
-        new LoadingScreen(this, primaryStage);
-    }
-
-    public void showWelcomeScreen() {
-        new WelcomeScreen(this, primaryStage);
-    }
-
-    public void showLoginScreen() {
-        new LoginScreen(this, primaryStage);
-    }
-
-    // Route to Buyer or Seller dashboards
+    /* ========= Navigation Methods ========= */
+    public void showLoadingScreen() { new LoadingScreen(this, primaryStage); }
+    public void showWelcomeScreen() { new WelcomeScreen(this, primaryStage); }
+    public void showLoginScreen() { new LoginScreen(this, primaryStage); }
+    public void showSignUpScreen() { new SignUpScreen(this, primaryStage); }
+    public void showShoppingCartScreen() { new ShoppingCartScreen(this, primaryStage); }
+    public void showStoreFrontScreen() { new StoreFrontScreen(this, primaryStage); }
+    public void showBuyerDashboard() { new BuyerDashboard(this, primaryStage); }
     public void showDashboard() {
-        if ("Seller".equals(currentUserRole)) {
-            new SellerDashboard(this, primaryStage);
+        if (currentUser instanceof model.Seller) new SellerDashboard(this, primaryStage);
+        else if (currentUser instanceof model.Buyer) new BuyerDashboard(this, primaryStage);
+        else showWelcomeScreen();
+    }
+
+    /* ========= User Session ========= */
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+        if (user != null) {
+            this.currentUserCart = new CartManager();
         } else {
-            new BuyerDashboard(this, primaryStage);
+            this.currentUserCart = null;
         }
     }
 
-    /* ========= User info access ========= */
+    public User getCurrentUser() { return currentUser; }
 
-    public void setCurrentUser(String displayName, String role) {
-        this.currentUserDisplayName = displayName;
-        this.currentUserRole = role;
+    public CartManager getCurrentUserCart() {
+        if (currentUserCart == null) currentUserCart = new CartManager();
+        return currentUserCart;
     }
 
-    public String getCurrentUserDisplayName() {
-        return currentUserDisplayName;
-    }
-
-    public String getCurrentUserRole() {
-        return currentUserRole;
-    }
-
-    /* ========= Shared info dialog utility ========= */
-
+    /* ========= Shared Dialog Utility ========= */
     public void showInfoDialog(String title, String message) {
         javafx.scene.control.Alert alert =
                 new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
@@ -79,7 +71,5 @@ public class Main extends Application {
         alert.showAndWait();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+    public static void main(String[] args) { launch(args); }
 }

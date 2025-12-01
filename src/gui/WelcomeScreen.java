@@ -33,17 +33,11 @@ public class WelcomeScreen {
         loginBtn.getStyleClass().addAll("primary-button", "large-button");
         loginBtn.setOnAction(e -> app.showLoginScreen());
 
-        Button signupBuyerBtn = new Button("Sign up as Buyer");
-        signupBuyerBtn.getStyleClass().addAll("secondary-button", "large-button");
-        signupBuyerBtn.setOnAction(e ->
-                app.showInfoDialog("Sign Up", "Sign up flow for Buyer goes here."));
+        Button signupBtn = new Button("Sign Up");
+        signupBtn.getStyleClass().addAll("secondary-button", "large-button");
+        signupBtn.setOnAction(e -> app.showSignUpScreen()); // Single Sign Up button
 
-        Button signupSellerBtn = new Button("Sign up as Seller");
-        signupSellerBtn.getStyleClass().addAll("secondary-button", "large-button");
-        signupSellerBtn.setOnAction(e ->
-                app.showInfoDialog("Sign Up", "Sign up flow for Seller goes here."));
-
-        buttonRow.getChildren().addAll(loginBtn, signupBuyerBtn, signupSellerBtn);
+        buttonRow.getChildren().addAll(loginBtn, signupBtn);
         centerBox.getChildren().addAll(title, subtitle, buttonRow);
 
         // Footer

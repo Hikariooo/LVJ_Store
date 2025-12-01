@@ -5,9 +5,15 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import managers.CartManager;
+import model.User;
 
 public class BuyerDashboard {
 
@@ -16,7 +22,10 @@ public class BuyerDashboard {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("screen-root");
 
-        /* ===== Sidebar (Buyer) ===== */
+        User currentUser = app.getCurrentUser(); // get logged-in user
+        CartManager cart = app.getCurrentUserCart();
+
+        /* ===== Sidebar ===== */
         VBox sideBar = new VBox(8);
         sideBar.getStyleClass().add("sidebar");
         sideBar.setPadding(new Insets(16));
@@ -26,13 +35,11 @@ public class BuyerDashboard {
 
         Button browseBtn = new Button("Browse Storefront");
         browseBtn.getStyleClass().add("sidebar-button");
-        browseBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "Storefront browsing UI will be shown here."));
+        browseBtn.setOnAction(e -> app.showStoreFrontScreen());
 
         Button cartBtn = new Button("My Cart");
         cartBtn.getStyleClass().add("sidebar-button");
-        cartBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "Cart UI will be shown here."));
+        cartBtn.setOnAction(e -> app.showShoppingCartScreen());
 
         Button wishlistBtn = new Button("My Wishlist");
         wishlistBtn.getStyleClass().add("sidebar-button");
@@ -41,16 +48,10 @@ public class BuyerDashboard {
 
         Button profileBtn = new Button("Profile");
         profileBtn.getStyleClass().add("sidebar-button");
-        profileBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "User profile screen UI will be shown here."));
+        profileBtn.setOnAction(e -> new ProfileScreen(app, stage));
 
-        sideBar.getChildren().addAll(
-                navLabel,
-                browseBtn,
-                cartBtn,
-                wishlistBtn,
-                profileBtn
-        );
+
+        sideBar.getChildren().addAll(navLabel, browseBtn, cartBtn, wishlistBtn, profileBtn);
 
         /* ===== Main content ===== */
         VBox mainContent = new VBox(16);
@@ -61,20 +62,19 @@ public class BuyerDashboard {
         HBox headerRow = new HBox(10);
         headerRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label greeting = new Label("Good day, " + app.getCurrentUserDisplayName() + "!");
+        Label greeting = new Label("Good day, " + currentUser.getDisplayName() + "!");
         greeting.getStyleClass().add("greeting-text");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label userLabel = new Label(
-                "Logged in as: " + app.getCurrentUserDisplayName() + " (Buyer)");
+        Label userLabel = new Label("Logged in as: " + currentUser.getDisplayName() + " (Buyer)");
         userLabel.getStyleClass().add("user-label");
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.getStyleClass().add("ghost-button");
         logoutBtn.setOnAction(e -> {
-            app.setCurrentUser("Guest", "Buyer");
+            app.setCurrentUser(null);
             app.showWelcomeScreen();
         });
 
@@ -83,17 +83,17 @@ public class BuyerDashboard {
 
         headerRow.getChildren().addAll(greeting, spacer, rightHeader);
 
-        // Description under header
-        Label roleDescription = new Label("Here’s a quick overview of the marketplace.");
+        // Description
+        Label roleDescription = new Label("Here’s a quick overview of your marketplace.");
         roleDescription.getStyleClass().add("subtitle");
 
-        // Stats row (Buyer)
+        // Stats row
         HBox statsRow = new HBox(12);
         statsRow.setAlignment(Pos.CENTER_LEFT);
 
-        VBox stat1 = createStatCard("Items in Cart", "3");
-        VBox stat2 = createStatCard("Wishlist", "7 items");
-        VBox stat3 = createStatCard("Available Vouchers", "2");
+        VBox stat1 = createStatCard("Items in Cart", String.valueOf(cart.getItemCount()));
+        VBox stat2 = createStatCard("Wishlist", "7 items"); // placeholder
+        VBox stat3 = createStatCard("Available Vouchers", "2"); // placeholder
 
         statsRow.getChildren().addAll(stat1, stat2, stat3);
 
@@ -116,9 +116,7 @@ public class BuyerDashboard {
 
         Scene scene = new Scene(root, Main.WIDTH, Main.HEIGHT);
         var cssUrl = getClass().getResource("application.css");
-        if (cssUrl != null) {
-            scene.getStylesheets().add(cssUrl.toExternalForm());
-        }
+        if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
         stage.setScene(scene);
     }
 

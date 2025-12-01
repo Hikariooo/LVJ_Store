@@ -1,0 +1,15 @@
+1,Apple iPhone 15,Smartphone,79900.0,10,LVJSeller
+2,Samsung Galaxy S24,Smartphone,69900.0,12,LVJSeller
+3,Sony WH-1000XM5,Headphones,14990.0,8,LVJSeller
+4,Logitech MX Master 3,Mouse,5990.0,15,LVJSeller
+5,Dell XPS 13,Laptop,109900.0,5,LVJSeller
+6,HP Spectre x360,Laptop,119900.0,7,LVJSeller
+7,Canon EOS R6,Camera,189900.0,3,LVJSeller
+8,Nikon Z7 II,Camera,159900.0,4,LVJSeller
+9,Apple iPad Air,Tablet,49900.0,6,LVJSeller
+10,Samsung Galaxy Tab S9,Tablet,47900.0,8,LVJSeller
+11,Kindle Paperwhite,Reader,7490.0,20,LVJSeller
+12,Apple Watch Series 9,Smartwatch,25900.0,9,LVJSeller
+13,Fitbit Charge 6,Smartwatch,11990.0,12,LVJSeller
+14,Bose SoundLink Mini,Speaker,8990.0,7,LVJSeller
+15,Google Nest Hub,Smart Home,7490.0,10,LVJSeller

@@ -8,6 +8,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.Seller;
+import model.User;
 
 public class SellerDashboard {
 
@@ -15,6 +17,8 @@ public class SellerDashboard {
 
         BorderPane root = new BorderPane();
         root.getStyleClass().add("screen-root");
+
+        User currentUser = app.getCurrentUser(); // should be Seller
 
         /* ===== Sidebar (Seller) ===== */
         VBox sideBar = new VBox(8);
@@ -24,33 +28,30 @@ public class SellerDashboard {
         Label navLabel = new Label("Navigation");
         navLabel.getStyleClass().add("sidebar-title");
 
+        // Storefront
         Button storefrontBtn = new Button("My Storefront");
         storefrontBtn.getStyleClass().add("sidebar-button");
-        storefrontBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "Storefront screen UI will be shown here."));
+        storefrontBtn.setOnAction(e -> app.showStoreFrontScreen());
 
+        // Vouchers
         Button vouchersBtn = new Button("Manage Vouchers");
         vouchersBtn.getStyleClass().add("sidebar-button");
-        vouchersBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "Voucher management UI will be shown here."));
+        vouchersBtn.setOnAction(e -> app.showInfoDialog("Coming Soon",
+                "Voucher management UI will be implemented later."));
 
+        // Transaction log
         Button transactionsBtn = new Button("Transaction Log");
         transactionsBtn.getStyleClass().add("sidebar-button");
-        transactionsBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "Transaction log UI will be shown here."));
+        transactionsBtn.setOnAction(e -> app.showInfoDialog("Coming Soon",
+                "Transaction log UI will be implemented later."));
 
+        // Profile
         Button profileBtn = new Button("Profile");
         profileBtn.getStyleClass().add("sidebar-button");
-        profileBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "User profile screen UI will be shown here."));
+        profileBtn.setOnAction(e -> new ProfileScreen(app, stage));
 
-        sideBar.getChildren().addAll(
-                navLabel,
-                storefrontBtn,
-                vouchersBtn,
-                transactionsBtn,
-                profileBtn
-        );
+
+        sideBar.getChildren().addAll(navLabel, storefrontBtn, vouchersBtn, transactionsBtn, profileBtn);
 
         /* ===== Main content ===== */
         VBox mainContent = new VBox(16);
@@ -61,20 +62,19 @@ public class SellerDashboard {
         HBox headerRow = new HBox(10);
         headerRow.setAlignment(Pos.CENTER_LEFT);
 
-        Label greeting = new Label("Good day, " + app.getCurrentUserDisplayName() + "!");
+        Label greeting = new Label("Good day, " + currentUser.getDisplayName() + "!");
         greeting.getStyleClass().add("greeting-text");
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        Label userLabel = new Label(
-                "Logged in as: " + app.getCurrentUserDisplayName() + " (Seller)");
+        Label userLabel = new Label("Logged in as: " + currentUser.getDisplayName() + " (Seller)");
         userLabel.getStyleClass().add("user-label");
 
         Button logoutBtn = new Button("Logout");
         logoutBtn.getStyleClass().add("ghost-button");
         logoutBtn.setOnAction(e -> {
-            app.setCurrentUser("Guest", "Buyer");
+            app.setCurrentUser(null); // logout
             app.showWelcomeScreen();
         });
 
@@ -91,9 +91,9 @@ public class SellerDashboard {
         HBox statsRow = new HBox(12);
         statsRow.setAlignment(Pos.CENTER_LEFT);
 
-        VBox stat1 = createStatCard("Active Products", "12");
-        VBox stat2 = createStatCard("Today’s Sales", "₱4,250.00");
-        VBox stat3 = createStatCard("Available Vouchers", "4");
+        VBox stat1 = createStatCard("Active Products", "12"); // Replace with actual data
+        VBox stat2 = createStatCard("Today’s Sales", "₱4,250.00"); // Replace with actual data
+        VBox stat3 = createStatCard("Available Vouchers", "4"); // Replace with actual data
 
         statsRow.getChildren().addAll(stat1, stat2, stat3);
 
