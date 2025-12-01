@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Seller extends User {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+
     private List<Product> productList;
     private List<Voucher> voucherList;
     private List<Transaction> transactionLog;
@@ -17,41 +18,23 @@ public class Seller extends User {
         this.transactionLog = new ArrayList<>();
     }
 
-    /* ========== Product Operations ========== */
+    /* ========= Product Operations ========= */
+    public void addProduct(Product product) { productList.add(product); }
+    public void removeProduct(Product product) { productList.remove(product); }
+    public List<Product> getProductList() { return productList; }
 
-    public void addProduct(Product product) {
-        productList.add(product);
-    }
+    /* ========= Voucher Operations ========= */
+    public void addVoucher(Voucher voucher) { voucherList.add(voucher); }
+    public void removeVoucher(Voucher voucher) { voucherList.remove(voucher); }
+    public List<Voucher> getVoucherList() { return voucherList; }
 
-    public void removeProduct(Product product) {
-        productList.remove(product);
-    }
+    /* ========= Transaction Log ========= */
+    public void addTransaction(Transaction transaction) { transactionLog.add(transaction); }
+    public List<Transaction> getTransactionLog() { return transactionLog; }
 
-    public List<Product> getProductList() {
-        return productList;
-    }
-
-    /* ========== Voucher Operations ========== */
-
-    public void addVoucher(Voucher voucher) {
-        voucherList.add(voucher);
-    }
-
-    public void removeVoucher(Voucher voucher) {
-        voucherList.remove(voucher);
-    }
-
-    public List<Voucher> getVoucherList() {
-        return voucherList;
-    }
-
-    /* ========== Transaction Log ========== */
-
-    public void addTransaction(Transaction transaction) {
-        transactionLog.add(transaction);
-    }
-
-    public List<Transaction> getTransactionLog() {
-        return transactionLog;
+    /* ========= Balance Operations ========= */
+    // Sellers can only add to balance
+    public void receivePayment(double amount) {
+        addBalance(amount);
     }
 }

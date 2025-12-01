@@ -1,6 +1,6 @@
 package model;
 
-import java.io.Serializable;
+import java.io.*;
 
 public abstract class User implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -9,6 +9,7 @@ public abstract class User implements Serializable {
     private String displayName;
     private double balance;
     private String location;
+    private static final String BALANCE_FOLDER = "src/storage/balances/";
 
     public User(String username, String password, String displayName,
                 double balance, String location) {
@@ -17,6 +18,7 @@ public abstract class User implements Serializable {
         this.displayName = displayName;
         this.balance = balance;
         this.location = location;
+        loadBalance();
     }
 
     //getters
@@ -58,15 +60,41 @@ public abstract class User implements Serializable {
     public void addBalance(double amount) {
         if (amount > 0) {
             balance += amount;
+            saveBalance();
         }
     }
-
     public boolean deductBalance(double amount) {
         if (amount > 0 && balance >= amount) {
             balance -= amount;
             return true;
         }
         return false;
+    }
+    
+    protected void saveBalance() {
+        try {
+            File dir = new File(BALANCE_FOLDER);
+            if (!dir.exists()) dir.mkdirs();
+
+            File file = new File(BALANCE_FOLDER + username + "_balance.txt");
+            try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+                pw.println(balance);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void loadBalance() {
+        File file = new File(BALANCE_FOLDER + username + "_balance.txt");
+        if (!file.exists()) return;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            balance = Double.parseDouble(br.readLine());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //walang password for security, ganon sa mga apps e hahaha

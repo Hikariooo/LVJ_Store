@@ -47,19 +47,38 @@ public class Main extends Application {
     /* ========= User Session ========= */
     public void setCurrentUser(User user) {
         this.currentUser = user;
+
         if (user != null) {
-            this.currentUserCart = new CartManager();
+            this.currentUserCart = new CartManager(user.getUsername()); // ✅ user-based cart
         } else {
             this.currentUserCart = null;
         }
     }
 
+
     public User getCurrentUser() { return currentUser; }
 
     public CartManager getCurrentUserCart() {
-        if (currentUserCart == null) currentUserCart = new CartManager();
+        if (currentUserCart == null && currentUser != null) {
+            currentUserCart = new CartManager(currentUser.getUsername());
+        }
         return currentUserCart;
     }
+    
+    public model.Buyer getCurrentBuyer() {
+        if (currentUser instanceof model.Buyer) {
+            return (model.Buyer) currentUser;
+        }
+        return null;
+    }
+
+    @Override
+    public void stop() {
+        if (currentUserCart != null) {
+            currentUserCart.saveCart();   
+        }
+    }
+
 
     /* ========= Shared Dialog Utility ========= */
     public void showInfoDialog(String title, String message) {
