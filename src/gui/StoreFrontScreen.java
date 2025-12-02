@@ -78,7 +78,7 @@ public class StoreFrontScreen {
 
         Button backBtn = new Button("Back");
         backBtn.getStyleClass().add("primary-button");
-
+        
         // Navigate back depending on user type
         backBtn.setOnAction(e -> {
             if (currentUser instanceof Seller) {
@@ -94,8 +94,15 @@ public class StoreFrontScreen {
             cartBtn.getStyleClass().add("primary-button");
             cartBtn.setOnAction(e -> app.showShoppingCartScreen());
             navBar.getChildren().addAll(backBtn, cartBtn);
-        } else {
-            navBar.getChildren().add(backBtn);
+        } 
+        
+        // If user is Seller, back + Add Product
+        else if (currentUser instanceof Seller) {
+        	Button addProductBtn = new Button("Add Product");
+        	addProductBtn.getStyleClass().add("primary-button");
+        	addProductBtn.setOnAction(e -> app.showAddProductScreen());
+        	
+            navBar.getChildren().addAll(backBtn, addProductBtn);
         }
 
         root.setBottom(navBar);

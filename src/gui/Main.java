@@ -37,6 +37,7 @@ public class Main extends Application {
     public void showSignUpScreen() { new SignUpScreen(this, primaryStage); }
     public void showShoppingCartScreen() { new ShoppingCartScreen(this, primaryStage); }
     public void showStoreFrontScreen() { new StoreFrontScreen(this, primaryStage); }
+    public void showAddProductScreen() {new AddProductScreen(this, primaryStage);} // <---- Added
     public void showBuyerDashboard() { new BuyerDashboard(this, primaryStage); }
     public void showDashboard() {
         if (currentUser instanceof model.Seller) new SellerDashboard(this, primaryStage);
