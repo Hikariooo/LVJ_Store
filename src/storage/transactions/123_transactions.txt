@@ -4,3 +4,19 @@
 === NEW TRANSACTION ===
 4,Logitech MX Master 3,Mouse,5990.0,LVJSeller
 ======================
+=== NEW TRANSACTION ===
+25,EU,animal,250.0,seller1
+======================
+=== NEW TRANSACTION ===
+25,EU,animal,250.0,seller1
+======================
+=== NEW TRANSACTION ===
+5,Crical PRO 3,Tako,6500.0,seller2
+======================
+=== NEW TRANSACTION ===
+5,Crical PRO 3,Tako,6500.0,seller2
+======================
+=== NEW TRANSACTION ===
+5,Crical PRO 3,Tako,6500.0,seller2
+5,Crical PRO 3,Tako,6500.0,seller2
+======================

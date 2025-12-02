@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import managers.SellerManager;
 import managers.ProductManager;
 import model.Product;
 import model.User;
@@ -34,45 +35,96 @@ public class StoreFrontScreen {
         BorderPane.setAlignment(title, Pos.CENTER);
         root.setTop(title);
 
-        // =================== ADDED PART: Show number of products ===================
-        Label productCountLabel = new Label("Available Products: " + ProductManager.getProducts().size());
-        productCountLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: gray;");
+        // Show number of products
+        Label productCountLabel;
+
+        if (currentUser instanceof Seller) {
+            // Show only the products owned by the current seller
+            int sellerProductCount = 0;
+            for (Product product : ProductManager.getProducts()) {
+                if (product.getSeller().equals(currentUser)) {
+                    sellerProductCount++;
+                }
+            }
+            productCountLabel = new Label("Available Products: " + sellerProductCount);
+        } else {
+            // For Buyer, show the total count of available products
+            productCountLabel = new Label("Available Products: " + ProductManager.getProducts().size());
+        }
+
+        productCountLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white;");
 
         VBox topBox = new VBox(5, title, productCountLabel);
         topBox.setAlignment(Pos.CENTER);
         root.setTop(topBox);
-        
+
         // Product display
         VBox productsBox = new VBox(10);
         productsBox.setPadding(new Insets(15));
         productsBox.setAlignment(Pos.TOP_CENTER);
 
-        for (Product product : ProductManager.getProducts()) {
-            HBox productRow = new HBox(10);
-            productRow.setAlignment(Pos.CENTER_LEFT);
-            productRow.setPadding(new Insets(5));
-            productRow.getStyleClass().add("product-row");
+        // Display products based on user type (Buyer or Seller)
+        if (currentUser instanceof Buyer) {
+            // Show all products for Buyers, including Seller's name
+            for (Product product : ProductManager.getProducts()) {
+                HBox productRow = new HBox(10);
+                productRow.setAlignment(Pos.CENTER_LEFT);
+                productRow.setPadding(new Insets(5));
+                productRow.getStyleClass().add("product-row");
 
-            Label nameLabel = new Label(product.getName() + " - ₱" + product.getPrice());
-            nameLabel.getStyleClass().add("product-name");
+                Label nameLabel = new Label(product.getName() + " - ₱" + product.getPrice());
+                nameLabel.getStyleClass().add("product-name");
 
-            Button addToCartBtn = new Button("Add to Cart");
-            addToCartBtn.getStyleClass().add("primary-button");
+                Label sellerLabel = new Label("Seller: " + product.getSeller().getDisplayName()); // Display the seller's name
+                sellerLabel.getStyleClass().add("product-seller");
 
-            // Only allow buyers to add to cart
-            if (currentUser instanceof Buyer) {
+                Button addToCartBtn = new Button("Add to Cart");
+                addToCartBtn.getStyleClass().add("primary-button");
+
+                // Only allow buyers to add to cart
                 addToCartBtn.setOnAction(e -> {
-                    app.getCurrentUserCart().addProduct(product);
-                    app.showInfoDialog("Added", product.getName() + " added to your cart!");
+                    if (ProductManager.decrementProductStock(product, 1)) { // Decrement stock by 1
+                        app.getCurrentUserCart().addProduct(product);
+                        Seller seller = product.getSeller();
+                        seller.receivePayment(product.getPrice()); // Increase seller's balance
+                        SellerManager.saveProductsToFile(seller); // Update seller's product file
+                        ProductManager.saveGlobalProducts(); // Update global product list
+                        app.showInfoDialog("Added", product.getName() + " added to your cart!");
+                    } else {
+                        app.showInfoDialog("Out of Stock", "Sorry, this product is out of stock.");
+                    }
                 });
-            } else {
-                // Sellers cannot add to cart
-                addToCartBtn.setText("Buyers Only");
-                addToCartBtn.setDisable(true);
-            }
 
-            productRow.getChildren().addAll(nameLabel, addToCartBtn);
-            productsBox.getChildren().add(productRow);
+                productRow.getChildren().addAll(nameLabel, sellerLabel, addToCartBtn);
+                productsBox.getChildren().add(productRow);
+            }
+        } // For sellers only: Display a 'Remove Product' button for each of their products
+        else if (currentUser instanceof Seller) {
+            // Show only the logged-in seller’s products
+            for (Product product : ProductManager.getProducts()) {
+                if (product.getSeller().equals(currentUser)) {  // Check if the product belongs to the current seller
+                    HBox productRow = new HBox(10);
+                    productRow.setAlignment(Pos.CENTER_LEFT);
+                    productRow.setPadding(new Insets(5));
+                    productRow.getStyleClass().add("product-row");
+
+                    Label nameLabel = new Label(product.getName() + " - ₱" + product.getPrice());
+                    nameLabel.getStyleClass().add("product-name");
+
+                    Button removeBtn = new Button("Remove Product");
+                    removeBtn.getStyleClass().add("primary-button");
+                    removeBtn.setOnAction(e -> {
+                        // Remove the product and update the seller’s file and global list
+                        ProductManager.removeProduct(product); // Remove product from the global list
+                        SellerManager.saveProductsToFile((Seller) currentUser); // Save updated seller’s products
+                        app.showInfoDialog("Removed", product.getName() + " has been removed!");
+                        app.showStoreFrontScreen(); // Refresh the store front screen
+                    });
+
+                    productRow.getChildren().addAll(nameLabel, removeBtn);
+                    productsBox.getChildren().add(productRow);
+                }
+            }
         }
 
         ScrollPane scrollPane = new ScrollPane(productsBox);
@@ -86,7 +138,7 @@ public class StoreFrontScreen {
 
         Button backBtn = new Button("Back");
         backBtn.getStyleClass().add("primary-button");
-        
+
         // Navigate back depending on user type
         backBtn.setOnAction(e -> {
             if (currentUser instanceof Seller) {
@@ -102,14 +154,13 @@ public class StoreFrontScreen {
             cartBtn.getStyleClass().add("primary-button");
             cartBtn.setOnAction(e -> app.showShoppingCartScreen());
             navBar.getChildren().addAll(backBtn, cartBtn);
-        } 
-        
+        }
         // If user is Seller, back + Add Product
         else if (currentUser instanceof Seller) {
-        	Button addProductBtn = new Button("Add Product");
-        	addProductBtn.getStyleClass().add("primary-button");
-        	addProductBtn.setOnAction(e -> app.showAddProductScreen());
-        	
+            Button addProductBtn = new Button("Add Product");
+            addProductBtn.getStyleClass().add("primary-button");
+            addProductBtn.setOnAction(e -> app.showAddProductScreen());
+
             navBar.getChildren().addAll(backBtn, addProductBtn);
         }
 

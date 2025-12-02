@@ -1,4 +1,2 @@
-1,Apple iPhone 15,Smartphone,79900.0,9,LVJSeller
-5,Dell XPS 13,Laptop,109900.0,5,LVJSeller
-11,Kindle Paperwhite,Reader,7490.0,20,LVJSeller
-13,Fitbit Charge 6,Smartwatch,11990.0,12,LVJSeller
+2,VIns,homen,234.0,2,seller1
+5,Crical PRO 3,Tako,6500.0,3,seller2

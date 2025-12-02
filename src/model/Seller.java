@@ -1,11 +1,13 @@
 package model;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import managers.SellerManager;
 
 public class Seller extends User {
     private static final long serialVersionUID = 1L;
-
+    private double balance;
     private List<Product> productList;
     private List<Voucher> voucherList;
     private List<Transaction> transactionLog;
@@ -19,22 +21,53 @@ public class Seller extends User {
     }
 
     /* ========= Product Operations ========= */
-    public void addProduct(Product product) { productList.add(product); }
-    public void removeProduct(Product product) { productList.remove(product); }
-    public List<Product> getProductList() { return productList; }
+    public void addProduct(Product product) {
+        productList.add(product);
+    }
+
+    public void removeProduct(Product product) {
+        productList.remove(product);
+    }
+
+    public List<Product> getProductList() {
+        return productList;
+    }
 
     /* ========= Voucher Operations ========= */
-    public void addVoucher(Voucher voucher) { voucherList.add(voucher); }
-    public void removeVoucher(Voucher voucher) { voucherList.remove(voucher); }
-    public List<Voucher> getVoucherList() { return voucherList; }
+    public void addVoucher(Voucher voucher) {
+        voucherList.add(voucher);
+    }
+
+    public void removeVoucher(Voucher voucher) {
+        voucherList.remove(voucher);
+    }
+
+    public List<Voucher> getVoucherList() {
+        return voucherList;
+    }
 
     /* ========= Transaction Log ========= */
-    public void addTransaction(Transaction transaction) { transactionLog.add(transaction); }
-    public List<Transaction> getTransactionLog() { return transactionLog; }
+    public void addTransaction(Transaction transaction) {
+        transactionLog.add(transaction);
+    }
 
-    /* ========= Balance Operations ========= */
-    // Sellers can only add to balance
+    public List<Transaction> getTransactionLog() {
+        return transactionLog;
+    }
+
+    /* Update seller's balance when a product is bought */
     public void receivePayment(double amount) {
-        addBalance(amount);
+        balance += amount;  // Add the payment amount to the seller's balance
+        saveSellerData();  // Save updated balance in the file
+    }
+
+    /* Save the seller's data (including balance) */
+    private void saveSellerData() {
+        // Update the seller's file with the new balance
+        SellerManager.saveProductsToFile(this);  // Re-save products as well
+    }
+
+    public double getBalance() {
+        return balance;
     }
 }

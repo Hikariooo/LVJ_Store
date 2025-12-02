@@ -91,4 +91,10 @@ public class Product implements Serializable {
                "\nStock: " + stock +
                "\nSeller: " + seller.getDisplayName();
     }
+    
+    @Override
+    public String toString() {
+        return id + "," + name + "," + category + "," + price + "," + stock + "," + seller.getUsername();
+    }
+
 }

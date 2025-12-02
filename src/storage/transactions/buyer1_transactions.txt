@@ -1,3 +1,4 @@
 === NEW TRANSACTION ===
-1,Apple iPhone 15,Smartphone,79900.0,LVJSeller
+25,EU,animal,250.0,seller1
+5,Crical PRO 3,Tako,6500.0,seller2
 ======================

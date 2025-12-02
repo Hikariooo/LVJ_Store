@@ -9,49 +9,40 @@ import java.util.List;
 
 public class ProductManager {
 
-    private static final String PRODUCT_FILE = "src/storage/products.txt";
-    private static List<Product> products = new ArrayList<>();
+    private static List<Product> products;
 
     static {
-        products = loadProducts();
+        products = loadGlobalProducts(); // Load global products initially
     }
 
     public static List<Product> getProducts() {
         return products;
     }
 
-    public static void addProduct(Product product) {
-        products.add(product);
-        saveProducts();
-    }
-
-    /** Save products to text file */
-    public static void saveProducts() {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(PRODUCT_FILE))) {
-            for (Product p : products) {
-                pw.println(p.getId() + "," +
-                        p.getName() + "," +
-                        p.getCategory() + "," +
-                        p.getPrice() + "," +
-                        p.getStock() + "," +
-                        p.getSeller().getUsername());
+    // Save global product list to the main products.txt file
+    public static void saveGlobalProducts() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter("src/storage/products.txt"))) {
+            for (Product product : products) {
+                pw.println(product.getId() + "," +
+                           product.getName() + "," +
+                           product.getCategory() + "," +
+                           product.getPrice() + "," +
+                           product.getStock() + "," +
+                           product.getSeller().getUsername());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /** Load products from text file */
-    public static List<Product> loadProducts() {
-        List<Product> loadedProducts = new ArrayList<>();
-        File file = new File(PRODUCT_FILE);
-        if (!file.exists()) return loadedProducts;
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+    // Load global products from the main products.txt file
+    public static List<Product> loadGlobalProducts() {
+        List<Product> products = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/storage/products.txt"))) {
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length < 6) continue;
+                if (parts.length < 6) continue; // Skip malformed lines
 
                 int id = Integer.parseInt(parts[0]);
                 String name = parts[1];
@@ -60,24 +51,37 @@ public class ProductManager {
                 int stock = Integer.parseInt(parts[4]);
                 String sellerUsername = parts[5];
 
-                // Create Seller object for each product (simple version)
-                Seller seller = new Seller(sellerUsername, "1234", sellerUsername, 0.0, "Unknown");
-
-                Product p = new Product(id, name, category, price, stock, seller);
-                loadedProducts.add(p);
+                Seller seller = new Seller(sellerUsername, "dummyPassword", sellerUsername, 0.0, "Unknown"); // You can replace with actual seller
+                Product product = new Product(id, name, category, price, stock, seller);
+                products.add(product);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        return loadedProducts;
+        return products;
     }
 
+    // Add a new product to the global list and save it
+    public static void addProduct(Product product) {
+        products.add(product);
+        saveGlobalProducts(); // Save updated global products list
+    }
 
-    public static Product findByName(String name) {
-        for (Product p : products) {
-            if (p.getName().equalsIgnoreCase(name)) return p;
+    // Remove a product from the global list and save it
+    public static void removeProduct(Product product) {
+        products.remove(product);
+        saveGlobalProducts(); // Save updated global products list
+    }
+
+    // Decrement stock of a product
+    public static boolean decrementProductStock(Product product, int quantity) {
+        // Check if the product has sufficient stock
+        if (product.getStock() >= quantity) {
+            product.decrementStock(quantity);  // Decrease stock of the product
+            saveGlobalProducts();  // Save the updated global products list
+            SellerManager.saveProductsToFile(product.getSeller());  // Save updated seller's product list
+            return true;
         }
-        return null;
+        return false;  // Not enough stock available
     }
 }

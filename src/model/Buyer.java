@@ -37,4 +37,6 @@ public class Buyer extends User {
     public void topUp(double amount) {
         addBalance(amount);
     }
+    
+    
 }
