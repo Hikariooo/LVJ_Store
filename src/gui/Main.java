@@ -8,13 +8,10 @@ import model.Product;
 import model.Seller;
 import model.User;
 import managers.CartManager;
-<<<<<<< HEAD
 import javafx.animation.PauseTransition;
 import javafx.util.Duration;
-=======
 import managers.ProductManager;
 import managers.SellerManager;
->>>>>>> branch 'master' of https://github.com/Hikariooo/LVJ_Store.git
 
 public class Main extends Application {
 
