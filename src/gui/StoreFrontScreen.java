@@ -34,6 +34,14 @@ public class StoreFrontScreen {
         BorderPane.setAlignment(title, Pos.CENTER);
         root.setTop(title);
 
+        // =================== ADDED PART: Show number of products ===================
+        Label productCountLabel = new Label("Available Products: " + ProductManager.getProducts().size());
+        productCountLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: gray;");
+
+        VBox topBox = new VBox(5, title, productCountLabel);
+        topBox.setAlignment(Pos.CENTER);
+        root.setTop(topBox);
+        
         // Product display
         VBox productsBox = new VBox(10);
         productsBox.setPadding(new Insets(15));

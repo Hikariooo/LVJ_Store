@@ -109,7 +109,7 @@ public class AddProductScreen {
         		Product p = new Product(id, name, category, price, stock, seller);
         		
         		// Add to manager and seller's list
-                // ProductManager.addProduct(p);    <------ Replace this
+                
         		seller.addProduct(p);
         		
         		app.showInfoDialog("Success", "Product added successfully!");
