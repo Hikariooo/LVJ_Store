@@ -15,6 +15,7 @@ import model.Product;
 import model.User;
 import model.Seller;
 import managers.ProductManager;
+import managers.SellerManager;
 
 public class AddProductScreen {
 
@@ -105,6 +106,8 @@ public class AddProductScreen {
 
                 // Add to manager and seller's list
                 seller.addProduct(product);
+                
+                SellerManager.saveProductsToFile(seller);
 
                 // Save changes to files
                 ProductManager.addProduct(product);
