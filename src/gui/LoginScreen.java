@@ -17,6 +17,7 @@ public class LoginScreen {
     public LoginScreen(Main app, Stage stage) {
         BorderPane root = new BorderPane();
         root.getStyleClass().add("screen-root");
+        root.getStyleClass().add("login-screen");
         root.setOpacity(0); // fade-in animation
 
         VBox centerBox = new VBox();

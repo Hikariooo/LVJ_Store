@@ -32,12 +32,26 @@
 }
 
 /* Slightly larger on loading screen */
-.center-box .app-title {
-    -fx-font-size: 34px;
+.center-box .logo-image {
+    -fx-alignment: center;
+    -fx-padding: 20px;
 }
 
-.center-box .subtitle {
-    -fx-font-size: 14px;
+.logo-image {
+    -fx-fit-width: 200px;  /* Adjust size if needed */
+    -fx-fit-height: 200px; /* Adjust size if needed */
+}
+
+.welcome-screen {
+	-fx-background-image: url("file:resources/welcomebg.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+}
+
+.login-screen {
+    -fx-background-image: url("file:resources/loginbg.png");
+    -fx-background-size: cover;
+    -fx-background-position: center center;
 }
 
 /* ========== BUTTONS ========== */

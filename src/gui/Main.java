@@ -1,13 +1,18 @@
 package gui;
 
 import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import model.User;
 import managers.CartManager;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 public class Main extends Application {
 
     private Stage primaryStage;
+    private Scene mainScene; // Single scene for the entire app
     private User currentUser;   // currently logged-in user
     private CartManager currentUserCart; 
     public static final double WIDTH = 1280;
@@ -26,23 +31,104 @@ public class Main extends Application {
         primaryStage.setMaxHeight(HEIGHT);
         primaryStage.setResizable(false);
 
+        // Create a single scene for the entire application
+        mainScene = new Scene(new Pane(), WIDTH, HEIGHT);
+        var cssUrl = getClass().getResource("application.css");
+        if (cssUrl != null) {
+            mainScene.getStylesheets().add(cssUrl.toExternalForm());
+        } else {
+            System.out.println("application.css NOT FOUND (check path/package)");
+        }
+        primaryStage.setScene(mainScene);
+        
         showLoadingScreen();
         primaryStage.show();
     }
 
     /* ========= Navigation Methods ========= */
-    public void showLoadingScreen() { new LoadingScreen(this, primaryStage); }
-    public void showWelcomeScreen() { new WelcomeScreen(this, primaryStage); }
-    public void showLoginScreen() { new LoginScreen(this, primaryStage); }
-    public void showSignUpScreen() { new SignUpScreen(this, primaryStage); }
-    public void showShoppingCartScreen() { new ShoppingCartScreen(this, primaryStage); }
-    public void showStoreFrontScreen() { new StoreFrontScreen(this, primaryStage); }
-    public void showAddProductScreen() {new AddProductScreen(this, primaryStage);} // <---- Added
-    public void showBuyerDashboard() { new BuyerDashboard(this, primaryStage); }
+    public void showLoadingScreen() { 
+        new LoadingScreen(this, primaryStage); 
+    }
+    
+    public void showWelcomeScreen() { 
+        // Clear current scene content
+        mainScene.setRoot(new Pane());
+        
+        // Small delay to ensure clean transition
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            new WelcomeScreen(this, primaryStage);
+        });
+        delay.play();
+    }
+    
+    public void showLoginScreen() { 
+        mainScene.setRoot(new Pane());
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            new LoginScreen(this, primaryStage);
+        });
+        delay.play();
+    }
+    
+    public void showSignUpScreen() { 
+        mainScene.setRoot(new Pane());
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            new SignUpScreen(this, primaryStage);
+        });
+        delay.play();
+    }
+    
+    public void showShoppingCartScreen() { 
+        mainScene.setRoot(new Pane());
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            new ShoppingCartScreen(this, primaryStage);
+        });
+        delay.play();
+    }
+    
+    public void showStoreFrontScreen() { 
+        mainScene.setRoot(new Pane());
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            new StoreFrontScreen(this, primaryStage);
+        });
+        delay.play();
+    }
+    
+    public void showAddProductScreen() {
+        mainScene.setRoot(new Pane());
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            new AddProductScreen(this, primaryStage);
+        });
+        delay.play();
+    }
+    
+    public void showBuyerDashboard() { 
+        mainScene.setRoot(new Pane());
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            new BuyerDashboard(this, primaryStage);
+        });
+        delay.play();
+    }
+    
     public void showDashboard() {
-        if (currentUser instanceof model.Seller) new SellerDashboard(this, primaryStage);
-        else if (currentUser instanceof model.Buyer) new BuyerDashboard(this, primaryStage);
-        else showWelcomeScreen();
+        mainScene.setRoot(new Pane());
+        PauseTransition delay = new PauseTransition(Duration.millis(10));
+        delay.setOnFinished(e -> {
+            if (currentUser instanceof model.Seller) {
+                new SellerDashboard(this, primaryStage);
+            } else if (currentUser instanceof model.Buyer) {
+                new BuyerDashboard(this, primaryStage);
+            } else {
+                showWelcomeScreen();
+            }
+        });
+        delay.play();
     }
 
     /* ========= User Session ========= */
@@ -55,7 +141,6 @@ public class Main extends Application {
             this.currentUserCart = null;
         }
     }
-
 
     public User getCurrentUser() { return currentUser; }
 
@@ -80,7 +165,6 @@ public class Main extends Application {
         }
     }
 
-
     /* ========= Shared Dialog Utility ========= */
     public void showInfoDialog(String title, String message) {
         javafx.scene.control.Alert alert =
@@ -91,5 +175,7 @@ public class Main extends Application {
         alert.showAndWait();
     }
 
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) { 
+        launch(args); 
+    }
 }
