@@ -1,0 +1,2 @@
+2,VIns,homen,234.0,2,seller1
+25,EU,animal,250.0,1,seller1
