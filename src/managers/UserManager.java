@@ -25,15 +25,12 @@ public class UserManager {
         return null;
     }
 
-    static {
-        loadUsers(); // load existing users at startup
-        if (users.isEmpty()) {
-            // Add default placeholder Buyer and Seller for testing
-            users.add(new Buyer("buyer1", "123", "Buyer One", 100.0, "Manila"));
-            users.add(new Seller("seller1", "123", "Seller One", 0.0, "Quezon City"));
-            saveUsers();
-        }
-    }
+	/*
+	 * static { loadUsers(); // load existing users at startup if (users.isEmpty())
+	 * { // Add default placeholder Buyer and Seller for testing users.add(new
+	 * Buyer("buyer1", "123", "Buyer One", 100.0, "Manila")); users.add(new
+	 * Seller("seller1", "123", "Seller One", 0.0, "Quezon City")); saveUsers(); } }
+	 */
 
     public static void addUser(User user) {
         users.add(user);

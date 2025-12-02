@@ -2,8 +2,12 @@ package gui;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import model.Product;
+import model.Seller;
 import model.User;
 import managers.CartManager;
+import managers.ProductManager;
+import managers.SellerManager;
 
 public class Main extends Application {
 
@@ -48,7 +52,16 @@ public class Main extends Application {
     /* ========= User Session ========= */
     public void setCurrentUser(User user) {
         this.currentUser = user;
-
+        
+        if (user instanceof Seller) {
+            Seller seller = (Seller) user;
+            SellerManager.loadProducts(seller);  // Load seller products
+            // Add all seller products to global ProductManager list
+            for (Product p : seller.getProductList()) {
+                ProductManager.addProduct(p);
+            }
+        }
+        
         if (user != null) {
             this.currentUserCart = new CartManager(user.getUsername()); // ✅ user-based cart
         } else {
