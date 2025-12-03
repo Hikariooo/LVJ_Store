@@ -1,4 +1,0 @@
-=== NEW TRANSACTION ===
-25,EU,animal,250.0,seller1
-5,Crical PRO 3,Tako,6500.0,seller2
-======================

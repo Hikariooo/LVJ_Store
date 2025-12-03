@@ -1,2 +1,0 @@
-5,Crical PRO 3,Tako,6500.0,4,seller2
-5,Crical PRO 3,Tako,6500.0,2,seller2
