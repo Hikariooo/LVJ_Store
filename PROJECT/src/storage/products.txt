@@ -1,0 +1,3 @@
+3,Eu,Human,200.0,0,qwe,true
+4,Jere,asda,400.0,0,qwe,false
+5,Ice Tubig,water,50.0,10,qwe,false
