@@ -59,3 +59,24 @@
 === NEW TRANSACTION ===
 5,Ice Tubig,water,50.0,qwe
 ======================
+=== NEW TRANSACTION ===
+123,12,123,12312.0,qwe
+======================
+=== NEW TRANSACTION ===
+123,12,123,12312.0,qwe
+5,Ice Tubig,water,50.0,qwe
+======================
+=== NEW TRANSACTION ===
+123,12,123,12312.0,qwe
+5,Ice Tubig,water,50.0,qwe
+======================
+=== NEW TRANSACTION ===
+456,TAKO NI ETHAN BUTAS,TAKO,1500.0,Seller3
+456,TAKO NI ETHAN BUTAS,TAKO,1500.0,Seller3
+456,TAKO NI ETHAN BUTAS,TAKO,1500.0,Seller3
+======================
+=== NEW TRANSACTION ===
+456,TAKO NI ETHAN BUTAS,TAKO,1500.0,Seller3
+456,TAKO NI ETHAN BUTAS,TAKO,1500.0,Seller3
+456,TAKO NI ETHAN BUTAS,TAKO,1500.0,Seller3
+======================

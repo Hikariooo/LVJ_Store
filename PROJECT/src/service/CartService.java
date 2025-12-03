@@ -97,10 +97,11 @@ public class CartService {
         seller.addTransaction(sellerTxn);
 
         // 6) Persist transaction batch
-        CartManager temp = new CartManager(buyer.getUsername());
-        temp.clear();
-        for (int i = 0; i < quantity; i++) temp.addProduct(product);
-        TransactionManager.saveTransaction(buyer, temp);
+        List<Product> purchased = new ArrayList<>();
+        for (int i = 0; i < quantity; i++) {
+        	purchased.add(product);
+        }
+        TransactionManager.saveTransaction(buyer, purchased);
 
         return true;
     }
@@ -162,12 +163,8 @@ public class CartService {
         }
 
         cart.saveCart();
-
-        // 6) Persist transaction log (selected items)
-        CartManager tmp = new CartManager(buyer.getUsername());
-        tmp.clear();
-        for (Product p : selectedProducts) tmp.addProduct(p);
-        TransactionManager.saveTransaction(buyer, tmp);
+        
+        TransactionManager.saveTransaction(buyer, selectedProducts);
 
         return true;
     }
@@ -223,10 +220,7 @@ public class CartService {
         }
 
         // 6) Save all purchased items as one transaction batch
-        CartManager tmp = new CartManager(buyer.getUsername());
-        tmp.clear();
-        for (Product p : productsToPurchase) tmp.addProduct(p);
-        TransactionManager.saveTransaction(buyer, tmp);
+        TransactionManager.saveTransaction(buyer, productsToPurchase);
 
         // 7) Clear cart and save
         cart.clear();

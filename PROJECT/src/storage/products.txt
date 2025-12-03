@@ -1,3 +1,6 @@
 3,Eu,Human,200.0,0,qwe,true
 4,Jere,asda,400.0,0,qwe,false
-5,Ice Tubig,water,50.0,10,qwe,false
+5,Ice Tubig,water,50.0,9,qwe,false
+123,12,123,12312.0,122,qwe,false
+345,345,345,345.0,345,qwe,false
+456,TAKO NI ETHAN BUTAS,TAKO,1500.0,64,Seller3,false

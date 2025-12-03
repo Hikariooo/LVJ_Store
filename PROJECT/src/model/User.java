@@ -66,6 +66,7 @@ public abstract class User implements Serializable {
     public boolean deductBalance(double amount) {
         if (amount > 0 && balance >= amount) {
             balance -= amount;
+            saveBalance();
             return true;
         }
         return false;

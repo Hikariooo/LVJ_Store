@@ -4,12 +4,13 @@ import model.Product;
 import model.User;
 
 import java.io.*;
+import java.util.List;
 
 public class TransactionManager {
 
     private static final String TX_FOLDER = "src/storage/";
 
-    public static void saveTransaction(User user, CartManager cart) {
+    public static void saveTransaction(User user, List<Product> products) {
 
         try {
             File dir = new File(TX_FOLDER);
@@ -21,7 +22,7 @@ public class TransactionManager {
 
                 pw.println("=== NEW TRANSACTION ===");
 
-                for (Product p : cart.getProducts()) {
+                for (Product p : products) {
                     pw.println(
                             p.getId() + "," +
                             p.getName() + "," +
