@@ -4,6 +4,8 @@ import managers.CartManager;
 import managers.TransactionManager;
 import managers.ProductManager;
 import model.*;
+import service.BalanceService;
+import managers.UserManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,70 +43,71 @@ public class CartService {
     
     
     public static boolean purchaseProduct(Buyer buyer,
-                                          Product product,
-                                          int quantity,
-                                          Voucher voucher) {
+            Product product,
+            int quantity,
+            Voucher voucher) {
 
-        if (buyer == null || product == null || quantity <= 0) return false;
+    		if (buyer == null || product == null || quantity <= 0) return false;
 
-        // 1) Stock check
-        if (product.getStock() < quantity) return false;
+    		// 1) Stock check
+    		if (product.getStock() < quantity) return false;
 
-        double originalPrice = product.getPrice() * quantity;
-        double finalPrice = originalPrice;
+    		double originalPrice = product.getPrice() * quantity;
+    		double finalPrice = originalPrice;
 
-        // 2) Voucher (same seller only)
-        if (voucher != null &&
-            voucher.getSeller() != null &&
-            voucher.getSeller().getUsername().equals(product.getSeller().getUsername())) {
+    		// 2) Voucher (same seller only)
+    		if (voucher != null &&
+    					voucher.getSeller() != null &&
+    					voucher.getSeller().getUsername().equals(product.getSeller().getUsername())) {
 
-            finalPrice = voucher.applyDiscount(originalPrice);
-        }
-
-        // 3) Check balance, then deduct using Buyer.reduceBalance (PERSISTS)
-        if (!BalanceService.canAfford(buyer, finalPrice)) {
-            return false;
-        }
-        buyer.reduceBalance(finalPrice);   // <-- this calls UserManager.saveUsers()
-
-        // 4) Decrement stock + credit seller (also persists seller + products)
-        boolean ok = ProductManager.decrementProductStock(product, quantity);
-        if (!ok) {
-            // (optional) you could refund here using buyer.topUp(finalPrice);
-            return false;
-        }
-
-        Seller seller = product.getSeller();
-
-        // 5) Log transactions (in-memory)
-        Transaction buyerTxn = new Transaction(
-                seller,
-                product.getName(),
-                quantity,
-                -originalPrice,
-                -finalPrice
-        );
-
-        Transaction sellerTxn = new Transaction(
-                buyer,
-                product.getName(),
-                quantity,
-                originalPrice,
-                finalPrice
-        );
-
-        buyer.addTransaction(buyerTxn);
-        seller.addTransaction(sellerTxn);
-
-        // 6) Persist transaction batch
-        List<Product> purchased = new ArrayList<>();
-        for (int i = 0; i < quantity; i++) {
-        	purchased.add(product);
-        }
-        TransactionManager.saveTransaction(buyer, purchased);
-
-        return true;
+    		finalPrice = voucher.applyDiscount(originalPrice);
     }
+
+    // 3) Check balance, then deduct using Buyer.reduceBalance (PERSISTS)
+    if (!BalanceService.canAfford(buyer, finalPrice)) {
+    	return false;
+    }
+    buyer.reduceBalance(finalPrice);   // <-- this calls UserManager.saveUsers()
+
+    // 4) Decrement stock + credit seller (also persists seller + products)
+    boolean ok = ProductManager.decrementProductStock(product, quantity);
+    if (!ok) {
+    // (optional) you could refund here using buyer.topUp(finalPrice);
+    return false;
+}
+
+    Seller seller = product.getSeller();
+
+// 5) Log transactions (in-memory)
+Transaction buyerTxn = new Transaction(
+seller,
+product.getName(),
+quantity,
+-originalPrice,
+-finalPrice
+);
+
+Transaction sellerTxn = new Transaction(
+buyer,
+product.getName(),
+quantity,
+originalPrice,
+finalPrice
+);
+
+buyer.addTransaction(buyerTxn);
+seller.addTransaction(sellerTxn);
+
+// 6) Persist transaction batch (text file)
+List<Product> purchased = new ArrayList<>();
+for (int i = 0; i < quantity; i++) {
+purchased.add(product);
+}
+TransactionManager.saveTransaction(buyer, purchased);
+
+return true;
+}
+
 
     /* ========== CHECKOUT SELECTED ========== */
 
