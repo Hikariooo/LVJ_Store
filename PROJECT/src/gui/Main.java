@@ -134,7 +134,15 @@ public class Main extends Application {
         });
         delay.play();
     }
+ // In your Main.java class, add these methods:
 
+    public void showAboutScreen() {
+        new AboutScreen(this, primaryStage);
+    }
+
+    public void showCreditsScreen() {
+        new CreditsScreen(this, primaryStage);
+    }
     /* ========= User Session ========= */
     public void setCurrentUser(User user) {
         this.currentUser = user;
@@ -170,6 +178,7 @@ public class Main extends Application {
         }
         return null;
     }
+    
 
     @Override
     public void stop() {

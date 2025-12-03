@@ -11,11 +11,16 @@ import javafx.stage.Stage;
 import managers.CartManager;
 import service.CartService;
 import service.BalanceService;
+import service.VoucherService;
 import model.Product;
 import model.Buyer;
+import model.Seller;
+import model.Voucher;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ShoppingCartScreen {
 
@@ -29,7 +34,6 @@ public class ShoppingCartScreen {
         Label title = new Label("My Shopping Cart");
         title.getStyleClass().add("screen-title");
         BorderPane.setAlignment(title, Pos.CENTER);
-        root.setTop(title);
 
         // ================== BALANCE SECTION ==================
         HBox balanceBox = new HBox(10);
@@ -78,7 +82,8 @@ public class ShoppingCartScreen {
         });
 
         balanceBox.getChildren().addAll(balanceLabel, topUpBtn);
-        VBox topContainer = new VBox(10, balanceBox);
+
+        VBox topContainer = new VBox(10, title, balanceBox);
         root.setTop(topContainer);
 
         // ================== CART ITEMS ==================
@@ -117,41 +122,145 @@ public class ShoppingCartScreen {
         ScrollPane scrollPane = new ScrollPane(cartBox);
         root.setCenter(scrollPane);
 
-        // ================== BOTTOM BAR ==================
+        // ================== BOTTOM BAR (WITH VOUCHER) ==================
         Label totalLabel = new Label("Total: ₱" + String.format("%.2f", cart.getTotalPrice()));
 
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e -> app.showBuyerDashboard());
 
+        // --- Voucher controls ---
+        Label voucherLabel = new Label("Voucher code:");
+        TextField voucherField = new TextField();
+        voucherField.setPromptText("Enter voucher name/code");
+        Label voucherStatus = new Label();   // feedback text
+
+        HBox voucherBox = new HBox(8, voucherLabel, voucherField);
+        voucherBox.setAlignment(Pos.CENTER_LEFT);
+
         Button checkoutSelectedBtn = new Button("Checkout Selected");
+        Button checkoutAllBtn = new Button("Checkout All");
+
         checkoutSelectedBtn.setOnAction(e -> {
-            boolean success = CartService.checkoutSelected(buyer, cart, selectedProducts);
-            if (!success) {
-                app.showInfoDialog("Checkout Failed", "No items selected or insufficient balance.");
+            if (selectedProducts.isEmpty()) {
+                app.showInfoDialog("Checkout Failed", "No items selected.");
+                return;
+            }
+
+            List<Product> toBuy = new ArrayList<>(selectedProducts);
+            Voucher voucher = resolveVoucherForProducts(toBuy, voucherField.getText(), voucherStatus, app);
+            if (voucher == null && !voucherField.getText().trim().isEmpty()) {
+                // invalid voucher; message already set in voucherStatus / dialog
+                return;
+            }
+
+            boolean anySuccess = false;
+            for (Product p : toBuy) {
+                boolean ok = CartService.purchaseProduct(buyer, p, 1, voucher);
+                if (ok) {
+                    cart.removeProduct(p);
+                    anySuccess = true;
+                }
+            }
+
+            if (!anySuccess) {
+                app.showInfoDialog("Checkout Failed", "Insufficient balance or stock.");
             } else {
                 app.showInfoDialog("Success", "Selected items purchased!");
                 app.showShoppingCartScreen();
             }
         });
 
-        Button checkoutAllBtn = new Button("Checkout All");
         checkoutAllBtn.setOnAction(e -> {
-            boolean success = CartService.checkoutAll(buyer, cart);
-            if (!success) {
-                app.showInfoDialog("Checkout Failed", "Your cart is empty or insufficient balance.");
+            if (cart.getProducts().isEmpty()) {
+                app.showInfoDialog("Checkout Failed", "Your cart is empty.");
+                return;
+            }
+
+            List<Product> toBuy = new ArrayList<>(cart.getProducts());
+            Voucher voucher = resolveVoucherForProducts(toBuy, voucherField.getText(), voucherStatus, app);
+            if (voucher == null && !voucherField.getText().trim().isEmpty()) {
+                // invalid voucher
+                return;
+            }
+
+            boolean anySuccess = false;
+            for (Product p : toBuy) {
+                boolean ok = CartService.purchaseProduct(buyer, p, 1, voucher);
+                if (ok) {
+                    cart.removeProduct(p);
+                    anySuccess = true;
+                }
+            }
+
+            if (!anySuccess) {
+                app.showInfoDialog("Checkout Failed", "Insufficient balance or stock.");
             } else {
                 app.showInfoDialog("Success", "All items purchased!");
                 app.showShoppingCartScreen();
             }
         });
 
-        HBox bottomBar = new HBox(15, backBtn, totalLabel, checkoutSelectedBtn, checkoutAllBtn);
-        bottomBar.setAlignment(Pos.CENTER);
-        bottomBar.setPadding(new Insets(10));
-        root.setBottom(bottomBar);
+        VBox bottomBox = new VBox(6);
+        bottomBox.setPadding(new Insets(10));
+
+        HBox buttonsRow = new HBox(15, backBtn, totalLabel, checkoutSelectedBtn, checkoutAllBtn);
+        buttonsRow.setAlignment(Pos.CENTER);
+
+        bottomBox.getChildren().addAll(voucherBox, voucherStatus, buttonsRow);
+        root.setBottom(bottomBox);
 
         // ================== SCENE ==================
         Scene scene = new Scene(root, Main.WIDTH, Main.HEIGHT);
         stage.setScene(scene);
+    }
+
+    /**
+     * Validates and resolves a voucher for the given products.
+     * - Ensures all products are from the same seller when a code is provided.
+     * - Looks up the voucher via VoucherService.
+     * - Updates voucherStatus label / shows dialogs on failure.
+     */
+    private Voucher resolveVoucherForProducts(List<Product> products,
+                                              String code,
+                                              Label voucherStatus,
+                                              Main app) {
+
+        String trimmed = code == null ? "" : code.trim();
+        if (trimmed.isEmpty()) {
+            voucherStatus.setText("");
+            return null; // no voucher used
+        }
+
+        // collect all sellers in the product list
+        Set<Seller> sellers = new HashSet<>();
+        for (Product p : products) {
+            sellers.add(p.getSeller());
+        }
+
+        if (sellers.isEmpty()) {
+            voucherStatus.setText("No items selected.");
+            return null;
+        }
+
+        if (sellers.size() > 1) {
+            String msg = "Voucher can only be used when all items are from the same seller.";
+            voucherStatus.setText(msg);
+            app.showInfoDialog("Voucher Error", msg);
+            return null;
+        }
+
+        Seller onlySeller = sellers.iterator().next();
+        Voucher voucher = VoucherService.findVoucher(onlySeller, trimmed);
+
+        if (voucher == null) {
+            String msg = "Voucher \"" + trimmed + "\" not found for this store.";
+            voucherStatus.setText(msg);
+            app.showInfoDialog("Voucher Error", msg);
+        } else {
+            voucherStatus.setText("Voucher applied: " + voucher.getName()
+                    + " (" + voucher.getDiscountPercent() + "%, max ₱" + voucher.getMaxDiscount() + ")");
+        }
+
+        return voucher;
     }
 }

@@ -12,6 +12,7 @@ import managers.ProductManager;
 import managers.SellerManager;
 import model.*;
 import service.StoreService;
+import service.CartService;
 
 public class StoreFrontScreen {
 
@@ -92,9 +93,16 @@ public class StoreFrontScreen {
             // Remaining stock label
             Label stockLabel = new Label("Stock Left: " + product.getStock());
             stockLabel.getStyleClass().add("product-stock");
+            
+            Button wishlistBtn = new Button("♡ Wishlist");
+            wishlistBtn.setOnAction(e -> {
+                Buyer buyer = app.getCurrentBuyer();
+                CartService.addToWishlist(buyer, product);
+                app.showInfoDialog("Added", "Item added to your wishlist.");
+            });
 
             // Add product name and stock label
-            productRow.getChildren().addAll(nameLabel, stockLabel);
+            productRow.getChildren().addAll(nameLabel, stockLabel,wishlistBtn);
 
             // For Buyers: Add to Cart functionality
             if (currentUser instanceof Buyer) {

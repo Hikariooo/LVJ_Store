@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -25,6 +26,29 @@ public class WelcomeScreen {
         // Start completely transparent
         root.setOpacity(0.0);
 
+        // TOP RIGHT: Create About and Credits buttons
+        HBox topRightButtons = new HBox(10);
+        topRightButtons.setAlignment(Pos.TOP_RIGHT);
+        topRightButtons.setStyle("-fx-padding: 20px;"); // Add some padding
+        
+        Button aboutBtn = new Button("About");
+        aboutBtn.getStyleClass().add("info-button");
+        aboutBtn.setOnAction(e -> {
+            // Directly show AboutScreen without fade transition
+            new AboutScreen(app, stage);
+        });
+        
+        Button creditsBtn = new Button("Credits");
+        creditsBtn.getStyleClass().add("info-button");
+        creditsBtn.setOnAction(e -> {
+            // Directly show CreditsScreen without fade transition
+            new CreditsScreen(app, stage);
+        });
+        
+        topRightButtons.getChildren().addAll(aboutBtn, creditsBtn);
+        root.setTop(topRightButtons);
+
+        // CENTER: Logo and main buttons
         // Load the logo image
         Image logoImage = new Image(getClass().getResource("/logo.png").toExternalForm());
         ImageView logoImageView = new ImageView(logoImage);
@@ -73,10 +97,10 @@ public class WelcomeScreen {
         fadeIn.play();
     }
 
-    // Method to apply the fade-out transition and then transition to the corresponding screen (Login or SignUp)
+    // Method to apply the fade-out transition and then transition to the corresponding screen
     private void applyFadeOutTransition(BorderPane root, Main app, Stage stage, String screenType) {
         // Fade-out transition
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(1000), root); // 1-second fade-out
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(500), root); // 0.5-second fade-out
         fadeOut.setFromValue(1.0);  // Start fully opaque
         fadeOut.setToValue(0.0);    // End fully transparent
 

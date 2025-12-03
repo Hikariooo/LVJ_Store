@@ -1,5 +1,6 @@
 package service;
 
+import managers.TransactionManager;
 import model.Buyer;
 import model.Seller;
 import model.Transaction;
@@ -13,6 +14,9 @@ public class TransactionService {
        VIEW BUYER HISTORY
        ============================= */
     public static List<Transaction> getBuyerHistory(Buyer buyer) {
+        if (buyer == null) return java.util.Collections.emptyList();
+        // Load from file into buyer.transactionLog
+        TransactionManager.loadTransactions(buyer);
         return buyer.getTransactionLog();
     }
 
@@ -20,6 +24,9 @@ public class TransactionService {
        VIEW SELLER HISTORY
        ============================= */
     public static List<Transaction> getSellerHistory(Seller seller) {
+        if (seller == null) return java.util.Collections.emptyList();
+        // Load from file into seller.transactionLog
+        TransactionManager.loadTransactions(seller);
         return seller.getTransactionLog();
     }
 

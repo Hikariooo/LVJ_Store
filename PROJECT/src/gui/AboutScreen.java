@@ -18,18 +18,26 @@ public class AboutScreen {
         root.getStyleClass().add("screen-root");
         root.setOpacity(0);
 
-        Button backBtn = new Button("← Back to Storefront");
+        // Back button - now goes to Welcome Screen
+        Button backBtn = new Button("← Back to Welcome");
         backBtn.getStyleClass().add("primary-button");
-        backBtn.setOnAction(e -> new StoreFrontScreen(app, stage)); // Corrected class name
+        backBtn.setOnAction(e -> app.showWelcomeScreen());
 
         Label title = new Label("About LVJ Store");
         title.getStyleClass().add("header-label");
 
         Label info = new Label(
                 "LVJ - Simple Online Storefront\n" +
-                "This application allows users to browse products, " +
-                "add items to their cart, and checkout seamlessly.\n" +
-                "Built with JavaFX and CSS styling."
+                "This application allows you to buy and sell products easily.\n" +
+                "Sellers can list their products, manage inventory, and track sales.\n" +
+                "Buyers can browse products, add to cart, and make purchases.\n\n" +
+                "Features:\n" +
+                "• User authentication (Login/Signup)\n" +
+                "• Product browsing\n" +
+                "• Shopping cart functionality\n" +
+                "• Seller dashboard\n" +
+                "• Transaction history\n" +
+                "• Balance management"
         );
         info.setWrapText(true);
 

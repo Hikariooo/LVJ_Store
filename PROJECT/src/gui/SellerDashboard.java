@@ -8,8 +8,16 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import gui.VoucherManagementScreen;
 import model.Seller;
 import model.User;
+import model.Voucher;
+import model.Transaction;
+import service.TransactionService;
+import service.VoucherService;
+
+import java.util.List;
+
 
 public class SellerDashboard {
 
@@ -19,7 +27,8 @@ public class SellerDashboard {
         root.getStyleClass().add("screen-root");
 
         User currentUser = app.getCurrentUser(); // should be Seller
-
+        Seller seller = (Seller) currentUser;
+        
         /* ===== Sidebar (Seller) ===== */
         VBox sideBar = new VBox(8);
         sideBar.getStyleClass().add("sidebar");
@@ -36,14 +45,20 @@ public class SellerDashboard {
         // Vouchers
         Button vouchersBtn = new Button("Manage Vouchers");
         vouchersBtn.getStyleClass().add("sidebar-button");
-        vouchersBtn.setOnAction(e -> app.showInfoDialog("Coming Soon",
-                "Voucher management UI will be implemented later."));
+        vouchersBtn.setOnAction(e -> {
+            new VoucherManagementScreen(app, stage);
+        });
+        
+     // Wishlist insights
+        Button wishlistInsightsBtn = new Button("Wishlist Insights");
+        wishlistInsightsBtn.getStyleClass().add("sidebar-button");
+        wishlistInsightsBtn.setOnAction(e -> new SellerWishlistScreen(app, stage));
 
+        
         // Transaction log
         Button transactionsBtn = new Button("Transaction Log");
         transactionsBtn.getStyleClass().add("sidebar-button");
-        transactionsBtn.setOnAction(e -> app.showInfoDialog("Coming Soon",
-                "Transaction log UI will be implemented later."));
+        transactionsBtn.setOnAction(e -> new TransactionLogScreen(app, stage));
 
         // Profile
         Button profileBtn = new Button("Profile");
@@ -51,7 +66,7 @@ public class SellerDashboard {
         profileBtn.setOnAction(e -> new ProfileScreen(app, stage));
 
 
-        sideBar.getChildren().addAll(navLabel, storefrontBtn, vouchersBtn, transactionsBtn, profileBtn);
+        sideBar.getChildren().addAll(navLabel, storefrontBtn, vouchersBtn,wishlistInsightsBtn, transactionsBtn, profileBtn);
 
         /* ===== Main content ===== */
         VBox mainContent = new VBox(16);
@@ -91,23 +106,57 @@ public class SellerDashboard {
         HBox statsRow = new HBox(12);
         statsRow.setAlignment(Pos.CENTER_LEFT);
 
-        VBox stat1 = createStatCard("Active Products", "12"); // Replace with actual data
-        VBox stat2 = createStatCard("Today’s Sales", "₱4,250.00"); // Replace with actual data
-        VBox stat3 = createStatCard("Available Vouchers", "4"); // Replace with actual data
+        int activeProducts = seller.getProductList() != null ? seller.getProductList().size() : 0;
+
+     // load vouchers from file for this seller
+     List<Voucher> vouchers = VoucherService.getSellerVouchers(seller);
+     int voucherCount = vouchers != null ? vouchers.size() : 0;
+
+     // Sum of all discountedPrice for this seller (positive values = money in)
+     double totalSales = 0.0;
+     List<Transaction> sellerTxs = TransactionService.getSellerHistory(seller);
+     for (Transaction t : sellerTxs) {
+         totalSales += t.getDiscountedPrice();
+     }
+
+     VBox stat1 = createStatCard("Active Products", String.valueOf(activeProducts));
+     VBox stat2 = createStatCard("Total Sales", "₱" + String.format("%.2f", totalSales));
+     VBox stat3 = createStatCard("Available Vouchers", String.valueOf(voucherCount));
+
+
 
         statsRow.getChildren().addAll(stat1, stat2, stat3);
 
         // Recent activity
+     // Recent activity
         VBox recentBox = new VBox(8);
         recentBox.getStyleClass().add("card");
         Label recentTitle = new Label("Recent Transactions");
         recentTitle.getStyleClass().add("card-title");
 
-        Text recentPlaceholder = new Text(
-                "No recent activity yet.\nOnce you start selling, your transactions will appear here.");
-        recentPlaceholder.getStyleClass().add("card-body-text");
+        if (sellerTxs.isEmpty()) {
+            Text recentPlaceholder = new Text(
+                    "No recent activity yet.\nOnce you start selling, your transactions will appear here.");
+            recentPlaceholder.getStyleClass().add("card-body-text");
+            recentBox.getChildren().addAll(recentTitle, recentPlaceholder);
+        } else {
+            recentBox.getChildren().add(recentTitle);
 
-        recentBox.getChildren().addAll(recentTitle, recentPlaceholder);
+            int shown = 0;
+            for (int i = sellerTxs.size() - 1; i >= 0 && shown < 5; i--, shown++) {
+                Transaction t = sellerTxs.get(i);
+                String line = String.format(
+                        "%s x%d — Earned: ₱%.2f (to %s)",
+                        t.getProductName(),
+                        t.getQuantity(),
+                        t.getDiscountedPrice(),
+                        t.getOtherUser().getDisplayName()
+                );
+                Label txnLabel = new Label(line);
+                txnLabel.getStyleClass().add("card-body-text");
+                recentBox.getChildren().add(txnLabel);
+            }
+        }
 
         mainContent.getChildren().addAll(headerRow, roleDescription, statsRow, recentBox);
 

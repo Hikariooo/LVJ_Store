@@ -18,9 +18,10 @@ public class CreditsScreen {
         root.getStyleClass().add("screen-root");
         root.setOpacity(0);
 
-        Button backBtn = new Button("← Back to Storefront");
+        // Back button - now goes to Welcome Screen
+        Button backBtn = new Button("← Back to Welcome");
         backBtn.getStyleClass().add("primary-button");
-        backBtn.setOnAction(e -> new StoreFrontScreen(app, stage)); // Corrected class name
+        backBtn.setOnAction(e -> app.showWelcomeScreen());
 
         Label title = new Label("Credits");
         title.getStyleClass().add("header-label");
@@ -29,7 +30,7 @@ public class CreditsScreen {
                 "Developed by:\n" +
                 "Jeremias P. Gomez\n" +
                 "Vince Ilagan\n" +
-                "Lawrence Maminta  \n"
+                "Lawrence Maminta"
         );
         devs.setWrapText(true);
 

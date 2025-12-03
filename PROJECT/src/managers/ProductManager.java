@@ -118,12 +118,13 @@ public class ProductManager {
             product.decrementStock(quantity);
         
             // 2) Pay the seller
-            Seller seller = product.getSeller();
+          /*  Seller seller = product.getSeller();
             if (seller != null) {
                 seller.receivePayment(product.getPrice() * quantity);
                 
-            }
+            }*/
          // Save seller's products (and indirectly his state if you want)
+            Seller seller = product.getSeller();
             SellerManager.saveProductsToFile(seller);
             // 3) Save updated product list to file
             saveGlobalProducts();

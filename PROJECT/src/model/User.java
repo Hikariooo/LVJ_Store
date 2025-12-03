@@ -1,6 +1,7 @@
 package model;
 
 import java.io.*;
+import java.util.*;
 
 public abstract class User implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -10,7 +11,7 @@ public abstract class User implements Serializable {
     private double balance;
     private String location;
     private static final String BALANCE_FOLDER = "src/storage/";
-
+    private List<Transaction> transactionLog = new ArrayList<>();
     public User(String username, String password, String displayName,
                 double balance, String location) {
         this.username = username;
@@ -44,6 +45,15 @@ public abstract class User implements Serializable {
     
     public String getPassword() {
         return password;
+    }
+    public List<Transaction> getTransactionLog() {
+        return transactionLog;
+    }
+
+    public void addTransaction(Transaction t) {
+        if (t != null) {
+            transactionLog.add(t);
+        }
     }
 
     //setters

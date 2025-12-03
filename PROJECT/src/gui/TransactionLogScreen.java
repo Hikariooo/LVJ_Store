@@ -11,11 +11,18 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import model.Buyer;
+import model.Seller;
+import model.Transaction;
+import model.User;
+import service.TransactionService;
 
 public class TransactionLogScreen {
 
     public TransactionLogScreen(Main app, Stage stage) {
-        BorderPane root = new BorderPane();
+    	User current = app.getCurrentUser();
+    	java.util.List<Transaction> txs;
+    	BorderPane root = new BorderPane();
         root.getStyleClass().add("screen-root");
         root.setOpacity(0);
 
@@ -36,11 +43,22 @@ public class TransactionLogScreen {
         centerBox.setPadding(new Insets(20));
         centerBox.setAlignment(Pos.TOP_LEFT);
 
-        // Placeholder transactions
-        for (int i = 1; i <= 5; i++) {
-            Label txn = new Label("Transaction " + i + ": Placeholder details...");
-            txn.getStyleClass().add("field-label");
-            centerBox.getChildren().add(txn);
+        if (current instanceof Buyer) {
+            txs = TransactionService.getBuyerHistory((Buyer) current);
+        } else if (current instanceof Seller) {
+            txs = TransactionService.getSellerHistory((Seller) current);
+        } else {
+            txs = java.util.Collections.emptyList();
+        }
+
+        if (txs.isEmpty()) {
+            centerBox.getChildren().add(new Label("No transactions yet."));
+        } else {
+            for (Transaction t : txs) {
+                Label txn = new Label(t.toString());
+                txn.getStyleClass().add("field-label");
+                centerBox.getChildren().add(txn);
+            }
         }
 
         root.setTop(topBar);

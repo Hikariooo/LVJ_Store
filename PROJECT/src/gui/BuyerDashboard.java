@@ -13,7 +13,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import managers.CartManager;
+import model.Buyer;
 import model.User;
+import model.*;
+import service.*;
 
 public class BuyerDashboard {
 
@@ -24,7 +27,7 @@ public class BuyerDashboard {
 
         User currentUser = app.getCurrentUser(); // get logged-in user
         CartManager cart = app.getCurrentUserCart();
-
+        Buyer buyer = (Buyer) currentUser;       // safe because this is BuyerDashboard
         /* ===== Sidebar ===== */
         VBox sideBar = new VBox(8);
         sideBar.getStyleClass().add("sidebar");
@@ -40,18 +43,23 @@ public class BuyerDashboard {
         Button cartBtn = new Button("My Cart");
         cartBtn.getStyleClass().add("sidebar-button");
         cartBtn.setOnAction(e -> app.showShoppingCartScreen());
+        
+        // Vouchers
+        Button viewVouchersBtn = new Button("View Store Vouchers");
+        viewVouchersBtn.getStyleClass().add("sidebar-button");
+        viewVouchersBtn.setOnAction(e -> new BuyerVoucherScreen(app, stage));
 
         Button wishlistBtn = new Button("My Wishlist");
         wishlistBtn.getStyleClass().add("sidebar-button");
-        wishlistBtn.setOnAction(e -> app.showInfoDialog("Coming soon",
-                "Wishlist UI will be shown here."));
+        wishlistBtn.setOnAction(e -> new BuyerWishlistScreen(app, stage));
+
 
         Button profileBtn = new Button("Profile");
         profileBtn.getStyleClass().add("sidebar-button");
         profileBtn.setOnAction(e -> new ProfileScreen(app, stage));
 
 
-        sideBar.getChildren().addAll(navLabel, browseBtn, cartBtn, wishlistBtn, profileBtn);
+        sideBar.getChildren().addAll(navLabel, browseBtn, cartBtn,viewVouchersBtn, wishlistBtn, profileBtn);
 
         /* ===== Main content ===== */
         VBox mainContent = new VBox(16);
@@ -87,27 +95,54 @@ public class BuyerDashboard {
         Label roleDescription = new Label("Here’s a quick overview of your marketplace.");
         roleDescription.getStyleClass().add("subtitle");
 
-        // Stats row
+     // Stats row
         HBox statsRow = new HBox(12);
         statsRow.setAlignment(Pos.CENTER_LEFT);
 
-        VBox stat1 = createStatCard("Items in Cart", String.valueOf(cart.getItemCount()));
-        VBox stat2 = createStatCard("Wishlist", "7 items"); // placeholder
-        VBox stat3 = createStatCard("Available Vouchers", "2"); // placeholder
+        // load buyer transaction history from file
+        java.util.List<Transaction> buyerTxs = TransactionService.getBuyerHistory(buyer);
+
+        int cartCount = cart.getItemCount();
+        int wishlistCount = buyer.getWishlist() != null ? buyer.getWishlist().size() : 0;
+        int purchaseCount = buyerTxs != null ? buyerTxs.size() : 0;
+
+        VBox stat1 = createStatCard("Items in Cart", String.valueOf(cartCount));
+        VBox stat2 = createStatCard("Wishlist Items", String.valueOf(wishlistCount));
+        VBox stat3 = createStatCard("Total Purchases", String.valueOf(purchaseCount));
 
         statsRow.getChildren().addAll(stat1, stat2, stat3);
 
-        // Recent activity
+        // ================== Recent activity ==================
         VBox recentBox = new VBox(8);
         recentBox.getStyleClass().add("card");
         Label recentTitle = new Label("Recent Purchases");
         recentTitle.getStyleClass().add("card-title");
 
-        Text recentPlaceholder = new Text(
-                "No recent activity yet.\nOnce you start buying, your purchases will appear here.");
-        recentPlaceholder.getStyleClass().add("card-body-text");
+        if (buyerTxs == null || buyerTxs.isEmpty()) {
+            Text recentPlaceholder = new Text(
+                    "No recent activity yet.\nOnce you start buying, your purchases will appear here.");
+            recentPlaceholder.getStyleClass().add("card-body-text");
+            recentBox.getChildren().addAll(recentTitle, recentPlaceholder);
+        } else {
+            recentBox.getChildren().add(recentTitle);
 
-        recentBox.getChildren().addAll(recentTitle, recentPlaceholder);
+            int shown = 0;
+            for (int i = buyerTxs.size() - 1; i >= 0 && shown < 5; i--, shown++) {
+                Transaction t = buyerTxs.get(i);
+                String line = String.format(
+                        "%s x%d — Original: ₱%.2f, Paid: ₱%.2f (with %s)",
+                        t.getProductName(),
+                        t.getQuantity(),
+                        Math.abs(t.getOriginalPrice()),
+                        Math.abs(t.getDiscountedPrice()),
+                        t.getOtherUser().getDisplayName()
+                );
+                Label txnLabel = new Label(line);
+                txnLabel.getStyleClass().add("card-body-text");
+                recentBox.getChildren().add(txnLabel);
+            }
+        }
+
 
         mainContent.getChildren().addAll(headerRow, roleDescription, statsRow, recentBox);
 
